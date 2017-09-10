@@ -5,6 +5,7 @@
   "main": "liri.js",
   "dependencies": {
     "moment": "^2.18.1",
+    "moment-twitter": "^0.2.0",
     "twitter": "^1.7.1"
   },
   "devDependencies": {},
