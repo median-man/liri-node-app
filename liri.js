@@ -7,31 +7,46 @@ var moment = require("moment-twitter");
 */
 var Twitter = require('twitter');
 
-function getTweetString(tweet, lineWidth, padding) {
-	var s = "";
-	var time = moment(tweet.created_at).twitterLong();
-	var tweetLines = getLines(tweet.text, lineWidth);
-	s = padding + time + "\n\n";
-	for ( var i = 0; i < tweetLines.length; i++ ) {
-		s += "" + padding + tweetLines[i] + padding + "\n";
+var getTweetString = function (text, time) {
+	var textLength = 47;
+	var bubbleLines = [
+		"     + + + + + + + + + + + + + + + + + + + + + + + + + +              ",
+		"   +                                                     +            "
+	];
+	var bottomLines = [
+		"   +                                                     +            ",
+		"     + +     + + + + + + + + + + + + + + + + + + + + + +              ",
+		"       +   +                                                          ",
+		"     +  +                                                             "
+	];
+	var placeHolder = "%s";
+	var textFormat = "  +    %s    +           ";
+	var lineWidth = bubbleLines[0].length;
+
+	text += " (" + moment(time).twitter() + ")";
+
+	var wrappedText = wordWrap(text, textLength);
+
+	for ( var i = 0; i < wrappedText.length; i++ ) {
+		// add space to make line length = textLength
+		if ( wrappedText[i].length < textLength ) {
+			wrappedText[i] += " ".repeat(textLength - wrappedText[i].length);
+		}
+		// place text in formatted line and add to lines.
+		bubbleLines.push(textFormat.replace(placeHolder, wrappedText[i]));
 	}
-	return s;
+	bubbleLines = bubbleLines.concat(bottomLines);
+	return bubbleLines.join("\n");
 }
 
 var displayTweets = function(tweets) {
 	var out = [];
-	var tweetWidth = 64;
-	var pad = "   ";
-	var divider = "\n" + "-".repeat(tweetWidth + 6) + "\n\n";
 
 	for ( var i =0; i < tweets.length; i++ ) {
-		out.push(getTweetString(tweets[i], tweetWidth, pad));
+		var tweet = tweets[i];
+		out.push(getTweetString(tweet.text, tweet.created_at));
 	}
-	console.log(
-		"\n ### Your Recent Tweets ###\n\n" + divider +
-		out.join(divider) + divider
-
-	);
+	console.log("\n" + out.join("\n\n"));
 }
 
 // Displays the last 20 tweets in the terminal
@@ -49,15 +64,13 @@ var myTweets = function() {
 /*
 	// get the tweets
 	client.get('search/tweets', queryParams, function(err, tweets, response) {
-		// console.log(err);
 		displayTweets(tweets.statuses);
-		// console.log(response);
 	});
 */
+
 	var testTweets = require("./tweets.json");
 	displayTweets(testTweets);
 
-	show the tweets
 	return;
 }
 
@@ -118,4 +131,38 @@ function main(cmd) {
 }
 main(process.argv[2]);
 
-toNewFile("test.txt", "hello world");
+/*
+	Helper Functions
+	----------------
+*/
+function wordWrap (s, lineLength) {
+	var words = s.split(" ");
+	var lines = [""];
+
+	for ( var i = 0; i < words.length; i++ ) {
+		var remainingChars = lineLength - lines[lines.length - 1].length;
+		if ( words[i].length + 1 > lineLength ) {
+			// break word into two parts
+			words = words.slice(0, i)
+				.concat(
+					[
+						words[i].substr(0, remainingChars - 1),
+						words[i].substring(remainingChars - 1)
+					],
+					words.slice(i+1)
+				); 
+		}
+		// determines if the next word with a space is too long
+		if (  words[i].length + 1 > remainingChars ) {
+			// start the next line
+			lines.push("");
+		}
+		if ( lines[lines.length - 1].length > 0 ) {
+			// add a space before the word
+			words[i] = " " + words[i];
+		}
+		// add the word to the current line
+		lines[lines.length - 1] += words[i];
+	}
+	return lines;
+}
