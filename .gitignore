@@ -1,3 +1,9 @@
+# testing
+keys.js
+keys.json
+output/
+tweets.json
+
 # Logs
 logs
 *.log
