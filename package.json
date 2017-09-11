@@ -1,6 +1,6 @@
 {
   "name": "liri-node-app",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "LIRI is a Language Interpretation and Recognition Interface for accessing information from some popular APIs.",
   "main": "liri.js",
   "dependencies": {
