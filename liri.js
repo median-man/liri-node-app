@@ -1,78 +1,92 @@
+// configuration variables
+var twitterUserName = "jpdTests"
+
 var keys = require( "./keys.json");
 var moment = require("moment-twitter");
 
 /*
-	Twitter commands
-	----------------
+	-------------------------------------------------------------------------------
+	Twitter features
+	-------------------------------------------------------------------------------
 */
 var Twitter = require('twitter');
-
-var getTweetString = function (text, time) {
-	var textLength = 47;
-	var bubbleLines = [
-		"     + + + + + + + + + + + + + + + + + + + + + + + + + +              ",
-		"   +                                                     +            "
-	];
-	var bottomLines = [
-		"   +                                                     +            ",
-		"     + +     + + + + + + + + + + + + + + + + + + + + + +              ",
-		"       +   +                                                          ",
-		"     +  +                                                             "
-	];
-	var placeHolder = "%s";
-	var textFormat = "  +    %s    +           ";
-	var lineWidth = bubbleLines[0].length;
-
-	text += " (" + moment(time).twitter() + ")";
-
-	var wrappedText = wordWrap(text, textLength);
-
-	for ( var i = 0; i < wrappedText.length; i++ ) {
-		// add space to make line length = textLength
-		if ( wrappedText[i].length < textLength ) {
-			wrappedText[i] += " ".repeat(textLength - wrappedText[i].length);
+var twitterThing = {
+	
+	// Returns a formatted string for a single tweet
+	getTweetString: function(text, time) {
+		var textLength = 47;
+		var bubbleLines = [
+			"     + + + + + + + + + + + + + + + + + + + + + + + + + +              ",
+			"   +                                                     +            "
+		];
+		var bottomLines = [
+			"   +                                                     +            ",
+			"     + +     + + + + + + + + + + + + + + + + + + + + + +              ",
+			"       +   +                                                          ",
+			"     +  +                                                             "
+		];
+		var placeHolder = "%s";
+		var textFormat = "  +    %s    +           ";
+		var lineWidth = bubbleLines[0].length;
+		
+		text += " (" + moment(time).twitter() + ")";
+		
+		var wrappedText = wordWrap(text, textLength);
+		
+		for ( var i = 0; i < wrappedText.length; i++ ) {
+			// add space to make line length = textLength
+			if ( wrappedText[i].length < textLength ) {
+				wrappedText[i] += " ".repeat(textLength - wrappedText[i].length);
+			}
+			// place text in formatted line and add to lines.
+			bubbleLines.push(textFormat.replace(placeHolder, wrappedText[i]));
 		}
-		// place text in formatted line and add to lines.
-		bubbleLines.push(textFormat.replace(placeHolder, wrappedText[i]));
+		bubbleLines = bubbleLines.concat(bottomLines);
+		return bubbleLines.join("\n");
+	},
+	
+	// Displays tweets on the command line
+	renderTweets: function(tweets) {
+		var out = [];		
+		for ( var i =0; i < tweets.length; i++ ) {
+			var tweet = tweets[i];
+			out.push(twitterThing.getTweetString(tweet.text, tweet.created_at));
+		}
+		console.log("\n" + out.join("\n\n"));
+	},
+
+	// Requests most recent tweets up to 20
+	reqeuest: function() {
+		var tweets;
+		var user = twitterUserName;
+	
+		// paremeters for GET search/tweets
+		var queryParams = {
+			q: "from:" + user,
+			count: 20
+		};
+	
+		var client = new Twitter(keys.twitter);
+/* 	
+		// get the tweets
+		client.get('search/tweets', queryParams, function(err, tweets, response) {
+			
+			// log error
+			if ( err ) {
+				return console.log(err);
+			}
+			// console.log(tweets);
+			// render the tweets
+			twitterThing.renderTweets(tweets.statuses);
+		});	
+ */	
+		// TODO: remove this part before deploying
+		// use test tweets for development
+		var testTweets = require("./tweets.json");
+		twitterThing.renderTweets(testTweets);
+	
 	}
-	bubbleLines = bubbleLines.concat(bottomLines);
-	return bubbleLines.join("\n");
-}
-
-var displayTweets = function(tweets) {
-	var out = [];
-
-	for ( var i =0; i < tweets.length; i++ ) {
-		var tweet = tweets[i];
-		out.push(getTweetString(tweet.text, tweet.created_at));
-	}
-	console.log("\n" + out.join("\n\n"));
-}
-
-// Displays the last 20 tweets in the terminal
-var myTweets = function() {
-	var tweets;
-	var user = "jpdtests";
-
-	// paremeters for GET search/tweets
-	var queryParams = {
-		q: "from:" + user,
-		count: 20
-	};
-
-	var client = new Twitter(keys.twitter);
-/*
-	// get the tweets
-	client.get('search/tweets', queryParams, function(err, tweets, response) {
-		displayTweets(tweets.statuses);
-	});
-*/
-
-	var testTweets = require("./tweets.json");
-	displayTweets(testTweets);
-
-	return;
-}
+};
 
 function toNewFile(fname, data) {
 	var fs = require("fs");
@@ -83,34 +97,14 @@ function toNewFile(fname, data) {
 	} );
 }
 
-
-// Wraps text s at column width and returns array of lines
-function getLines(s, width = 78) {
-	var words = s.split(" ");
-	var line = "";
-	var lines = [];
-	for ( var i = 0; i < words.length; i++ ) {
-		if ( line.length <= width - words[i].length ) {
-			line += words[i] + " ";
-		} else {
-			lines.push(line.trim());
-			line = words[i];
-		}		
-	}
-	lines.push(line);
-	return lines;
-}
-
-
-
-
 function main(cmd) {
 
 	switch ( cmd ) {
 		case "my-tweets":
-			myTweets();
+			twitterThing.reqeuest();
 			break;
 
+		case "spotify":
 		case "spotify-this-song":
 			break;
 
