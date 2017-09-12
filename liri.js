@@ -47,7 +47,6 @@ var omdb = {
 	
 	// Displays move data on command line
 	render: function(movie) {
-		var request = require("request");
 		
 		// get rotten tomatoes rating if it is available
 		var rottenTomatoes = "unavailable";
@@ -75,6 +74,10 @@ var omdb = {
 	
 	// Request movie data from omdb api and call this.render
 	request: function(movieTitle) {
+
+		// get http request client
+		var request = require("request");
+		
 		// GET parameters
 		var apiKey = "apikey=" + omdb.apiKey;
 		movieTitle = "t=" + encodeURIComponent(movieTitle);
