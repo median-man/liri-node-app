@@ -12,13 +12,46 @@ var moment = require("moment-twitter");
 	-------------------------------------------------------------------------------
 */
 var request = require("request");
+var testMovie = 
+{ 
+	Title: 'Spaceballs',
+	Year: '1987',
+	Rated: 'PG',
+	Released: '24 Jun 1987',
+	Runtime: '96 min',
+	Genre: 'Adventure, Comedy, Sci-Fi',
+	Director: 'Mel Brooks',
+	Writer: 'Mel Brooks, Thomas Meehan, Ronny Graham',
+	Actors: 'Mel Brooks, John Candy, Rick Moranis, Bill Pullman',
+	Plot: 'Planet Spaceballs\' President Skroob sends Lord Dark Helmet to steal planet Druidia\'s abundant supply of air to replenish their own, and only Lone Star	r can stop them.',
+	Language: 'English',
+	Country: 'USA',
+	Awards: '1 win.',
+	Poster: 'https://images-na.ssl-images-amazon.com/images/M/MV5BMjVjOGQ0OTctNDhkZC00ZGNiLWI2ZGEtYjZlMWZjOTlkNDlhXkEyXkFqcGdeQXVyNjg1MjEwOTM@._V1_SX300.jpg',
+	Ratings:
+	[ { Source: 'Internet Movie Database', Value: '7.1/10' },
+	{ Source: 'Rotten Tomatoes', Value: '57%' },
+	{ Source: 'Metacritic', Value: '46/100' } ],
+	Metascore: '46',
+	imdbRating: '7.1',
+	imdbVotes: '145,740',
+	imdbID: 'tt0094012',
+	Type: 'movie',
+	DVD: '02 May 2000',
+	BoxOffice: 'N/A',
+	Production: 'MGM',
+	Website: 'N/A',
+	Response: 'True'
+};
 
 var omdb = {
 	host: "http://www.omdbapi.com/?",
 	apiKey: keys.omdb,
 	render: function(movie) {
+		console.log(movie);
 		var s = 
-		"Title: " + movie.Title + "\n";
+			"Title: " + movie.Title + "\n" +
+			"Released: " + movie.Released + "\n";
 		// TODO: finish rendering movie data to console
 
 		console.log(s);
@@ -155,6 +188,12 @@ function main(args) {
 		case "movie-this":
 			// check for movie title
 			if ( args[1] ) {
+				// TODO: remove test code
+				if ( args[1] === "test" ) {
+					// dont send request for testing
+					return omdb.render(testMovie);
+				}
+
 				// join args for multi word title and run command
 				omdb.request(args.slice(1).join(" "));
 			} else {
