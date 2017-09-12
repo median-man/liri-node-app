@@ -103,12 +103,11 @@ var omdb = {
 Twitter features
 -------------------------------------------------------------------------------
 */
-var Twitter = require('twitter');
 var twitterThing = {
 	
 	// Returns a formatted string for a single tweet
 	getTweetString: function(text, time) {
-
+		
 		// used to display times in twitter format
 		var moment = require("moment-twitter");
 		
@@ -156,7 +155,7 @@ var twitterThing = {
 	// Requests most recent tweets up to 20
 	reqeuest: function() {
 		var tweets;
-
+		
 		// from global var at top of this file
 		var user = twitterUserName;
 		
@@ -166,6 +165,8 @@ var twitterThing = {
 			count: 20
 		};
 		
+		// get twitter client
+		var Twitter = require('twitter');
 		var client = new Twitter(keys.twitter);
 			
 		// get the tweets
