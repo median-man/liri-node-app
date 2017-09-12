@@ -108,6 +108,10 @@ var twitterThing = {
 	
 	// Returns a formatted string for a single tweet
 	getTweetString: function(text, time) {
+
+		// used to display times in twitter format
+		var moment = require("moment-twitter");
+		
 		var textLength = 47;
 		var bubbleLines = [
 			"     + + + + + + + + + + + + + + + + + + + + + + + + + +              ",
@@ -152,9 +156,6 @@ var twitterThing = {
 	// Requests most recent tweets up to 20
 	reqeuest: function() {
 		var tweets;
-		
-		// used to display times in twitter format
-		var moment = require("moment-twitter");
 
 		// from global var at top of this file
 		var user = twitterUserName;
@@ -166,24 +167,18 @@ var twitterThing = {
 		};
 		
 		var client = new Twitter(keys.twitter);
-		/* 	
+			
 		// get the tweets
 		client.get('search/tweets', queryParams, function(err, tweets, response) {
 			
-			// log error
+			//log error
 			if ( err ) {
 				return console.log(err);
 			}
-			// console.log(tweets);
+			console.log(tweets);
 			// render the tweets
 			twitterThing.renderTweets(tweets.statuses);
-		});	*/	
-
-		// TODO: remove this part before deploying
-		// use test tweets for development
-		var testTweets = require("./tweets.json");
-		twitterThing.renderTweets(testTweets);
-	
+		});	
 	}
 };
 
@@ -201,6 +196,14 @@ function main(args) {
 
 	switch ( command ) {
 		case "my-tweets":
+
+			// TODO: remove test code before deploying
+			if ( args[1] === "test" ) {
+				var testTweets = require("./tweets.json");
+				twitterThing.renderTweets(testTweets);
+				return;
+			}
+
 			twitterThing.reqeuest();
 			break;
 
