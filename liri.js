@@ -103,6 +103,14 @@ Spotify features
 -------------------------------------------------------------------------------
 */
 var spot = {
+/* 	// Returns url for search endpoint
+	getSearchUrl: function(trackName) {
+		var url = "https://api.spotify.com/v1/search?";
+		var q = "q=" + encodeURIComponent(trackName);
+		var type = "type=track";
+		return url + [q,type].join("&");
+	}, */
+
 	// Displays song info on the command line
 	render: function(song) {
 		// TODO: format and display song data on cmd line
@@ -115,9 +123,25 @@ var spot = {
 		var Spotify = require('node-spotify-api');
 		var spotify = new Spotify(keys.spotify);
 
-		
+		// query parameter string
+		// var query = 
+
 		// TODO: request song data from spotify api
-		console.log("songName:",songName);
+		spotify.search(
+			{
+				type: 'track',
+				// place song name in quotes for exact word match
+				// that is not case sensitive
+				query: '"' + songName + '"',
+				limit: 1
+			},
+			function(err, data) {
+				if ( err ) {
+					return console.log('Spotify Error:', err);
+				}
+				toNewFile("spotifyOut.json", JSON.stringify(data.tracks.items[0]));
+			}
+		);
 	}
 };
 /*
@@ -218,50 +242,57 @@ function main(args) {
 	var command = args[0];
 
 	switch ( command ) {
+
+		/* ----- twitter commands ----- */
 		case "my-tweets":
-
-			// TODO: remove test code before deploying
-			if ( args[1] === "test" ) {
-				var testTweets = require("./tweets.json");
-				twitterThing.renderTweets(testTweets);
-				return;
-			}
-
-			twitterThing.reqeuest();
-			break;
-
+		
+		// TODO: remove test code before deploying
+		if ( args[1] === "test" ) {
+			var testTweets = require("./tweets.json");
+			twitterThing.renderTweets(testTweets);
+			return;
+		}
+		
+		twitterThing.reqeuest();
+		break;
+		
+		/* ----- music commands ----- */
 		case "spotify":
 		case "spotify-this-song":
-			if ( args[1] ) {
-				if ( args[1] === "test" ) {
-					// TODO: create a test object returned by 
-					// spotify api request
-					// spot.render(testSong);
-					console.log("no test object available");
-					return;
-				}
-			} else {
-				// no song title was entered
-				console.log("Please enter a song title.");
+		if ( args[1] ) {
+			if ( args[1] === "test" ) {
+				// TODO: create a test object returned by 
+				// spotify api request
+				// spot.render(testSong);
+				var testSong = require("./testSong.json");
+				spot.render(testSong);
+				return;
 			}
-			break;
-
+			spot.request(args.slice(1).join(" "));
+		} else {
+			// no song title was entered
+			console.log("Please enter a song title.");
+		}
+		break;
+		
+		/* ----- movie commands ----- */
 		case "movie-this":
-			// check for movie title
-			if ( args[1] ) {
-				// TODO: remove test code
-				if ( args[1] === "test" ) {
-					// dont send request for testing
-					return omdb.render(testMovie);
-				}
-
-				// join args for multi word title and run command
-				omdb.request(args.slice(1).join(" "));
-			} else {
-				console.log("Enter a movie title.");
+		// check for movie title
+		if ( args[1] ) {
+			// TODO: remove test code
+			if ( args[1] === "test" ) {
+				// dont send request for testing
+				return omdb.render(testMovie);
 			}
-			break;
-
+			
+			// join args for multi word title and run command
+			omdb.request(args.slice(1).join(" "));
+		} else {
+			console.log("Enter a movie title.");
+		}
+		break;
+		
+		/* ----- misc commands ----- */
 		case "do-what-it-says":
 			break;
 
