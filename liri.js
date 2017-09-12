@@ -1,8 +1,51 @@
 // configuration variables
 var twitterUserName = "jpdTests"
 
+// contains api keys
 var keys = require( "./keys.json");
+
+// used to display times in twitter format
 var moment = require("moment-twitter");
+/*
+	-------------------------------------------------------------------------------
+	OMDB features
+	-------------------------------------------------------------------------------
+*/
+var request = require("request");
+
+var omdb = {
+	host: "http://www.omdbapi.com/?",
+	apiKey: keys.omdb,
+	render: function(movie) {
+		var s = 
+		"Title: " + movie.Title + "\n";
+		// TODO: finish rendering movie data to console
+
+		console.log(s);
+	},
+	request: function(movieTitle) {
+		// GET parameters
+		var apiKey = "apikey=" + omdb.apiKey;
+		movieTitle = "t=" + encodeURIComponent(movieTitle);
+
+		var queryUrl = this.host + apiKey + "&" + movieTitle;
+
+		console.log(queryUrl);
+
+		// request movie data from OMDB api
+		request(queryUrl, function(error, response, body) {
+			if ( !error && response.statusCode === 200 ) {
+
+				// display the data
+				omdb.render(JSON.parse(body));
+			} else if (error) {
+				console.log("omdb request error", error);
+			} else {
+				console.log("unexpected omdb api response:", response.statusCode);
+			}			
+		});
+	}
+};
 
 /*
 	-------------------------------------------------------------------------------
@@ -67,7 +110,7 @@ var twitterThing = {
 		};
 	
 		var client = new Twitter(keys.twitter);
-/* 	
+		/* 	
 		// get the tweets
 		client.get('search/tweets', queryParams, function(err, tweets, response) {
 			
@@ -78,8 +121,8 @@ var twitterThing = {
 			// console.log(tweets);
 			// render the tweets
 			twitterThing.renderTweets(tweets.statuses);
-		});	
- */	
+		});	*/	
+
 		// TODO: remove this part before deploying
 		// use test tweets for development
 		var testTweets = require("./tweets.json");
@@ -97,9 +140,10 @@ function toNewFile(fname, data) {
 	} );
 }
 
-function main(cmd) {
+function main(args) {
+	var command = args[0];
 
-	switch ( cmd ) {
+	switch ( command ) {
 		case "my-tweets":
 			twitterThing.reqeuest();
 			break;
@@ -109,6 +153,13 @@ function main(cmd) {
 			break;
 
 		case "movie-this":
+			// check for movie title
+			if ( args[1] ) {
+				// join args for multi word title and run command
+				omdb.request(args.slice(1).join(" "));
+			} else {
+				console.log("Enter a movie title.");
+			}
 			break;
 
 		case "do-what-it-says":
@@ -123,7 +174,7 @@ function main(cmd) {
 			);
 	}
 }
-main(process.argv[2]);
+main( process.argv.slice(2) );
 
 /*
 	Helper Functions
