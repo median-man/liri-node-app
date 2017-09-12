@@ -97,7 +97,29 @@ var omdb = {
 		});
 	}
 };
+/*
+-------------------------------------------------------------------------------
+Spotify features
+-------------------------------------------------------------------------------
+*/
+var spot = {
+	// Displays song info on the command line
+	render: function(song) {
+		// TODO: format and display song data on cmd line
+		console.log("song:", song);
+	},
+	// Request song data from spotify api and call this.render
+	request: function(songName) {
 
+		// get spotify api client
+		var Spotify = require('node-spotify-api');
+		var spotify = new Spotify(keys.spotify);
+
+		
+		// TODO: request song data from spotify api
+		console.log("songName:",songName);
+	}
+};
 /*
 -------------------------------------------------------------------------------
 Twitter features
@@ -210,6 +232,18 @@ function main(args) {
 
 		case "spotify":
 		case "spotify-this-song":
+			if ( args[1] ) {
+				if ( args[1] === "test" ) {
+					// TODO: create a test object returned by 
+					// spotify api request
+					// spot.render(testSong);
+					console.log("no test object available");
+					return;
+				}
+			} else {
+				// no song title was entered
+				console.log("Please enter a song title.");
+			}
 			break;
 
 		case "movie-this":
