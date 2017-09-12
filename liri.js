@@ -4,14 +4,11 @@ var twitterUserName = "jpdTests"
 // contains api keys
 var keys = require( "./keys.json");
 
-// used to display times in twitter format
-var moment = require("moment-twitter");
 /*
-	-------------------------------------------------------------------------------
-	OMDB features
-	-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+OMDB features
+-------------------------------------------------------------------------------
 */
-var request = require("request");
 var testMovie = 
 { 
 	Title: 'Spaceballs',
@@ -47,28 +44,49 @@ var testMovie =
 var omdb = {
 	host: "http://www.omdbapi.com/?",
 	apiKey: keys.omdb,
+	
+	// Displays move data on command line
 	render: function(movie) {
-		console.log(movie);
+		var request = require("request");
+		
+		// get rotten tomatoes rating if it is available
+		var rottenTomatoes = "unavailable";
+		for ( var i = 0; i < movie.Ratings.length; i++ ) {
+			var rating = movie.Ratings[i];
+			if ( rating.Source === "Rotten Tomatoes" ) {
+				rottenTomatoes = rating.Value;
+			}
+		}
+		
+		// build output string for command line
 		var s = 
-			"Title: " + movie.Title + "\n" +
-			"Released: " + movie.Released + "\n";
-		// TODO: finish rendering movie data to console
-
+		"Title: " + movie.Title + "\n" +
+		"Released: " + movie.Released + "\n" +
+		"IMDb Rating: " + movie.imdbRating + "\n" +
+		"Rotten Tomatoes: " + rottenTomatoes+ "\n" +
+		"Country: " + movie.Country + "\n" +
+		"Language: " + movie.Language + "\n" +
+		"Actors: " + movie.Actors + "\n" +
+		"Plot:\n" + movie.Plot;
+		
+		// display output on cmd line
 		console.log(s);
 	},
+	
+	// Request movie data from omdb api and call this.render
 	request: function(movieTitle) {
 		// GET parameters
 		var apiKey = "apikey=" + omdb.apiKey;
 		movieTitle = "t=" + encodeURIComponent(movieTitle);
-
+		
 		var queryUrl = this.host + apiKey + "&" + movieTitle;
-
+		
 		console.log(queryUrl);
-
+		
 		// request movie data from OMDB api
 		request(queryUrl, function(error, response, body) {
 			if ( !error && response.statusCode === 200 ) {
-
+				
 				// display the data
 				omdb.render(JSON.parse(body));
 			} else if (error) {
@@ -81,9 +99,9 @@ var omdb = {
 };
 
 /*
-	-------------------------------------------------------------------------------
-	Twitter features
-	-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+Twitter features
+-------------------------------------------------------------------------------
 */
 var Twitter = require('twitter');
 var twitterThing = {
@@ -130,18 +148,23 @@ var twitterThing = {
 		}
 		console.log("\n" + out.join("\n\n"));
 	},
-
+	
 	// Requests most recent tweets up to 20
 	reqeuest: function() {
 		var tweets;
+		
+		// used to display times in twitter format
+		var moment = require("moment-twitter");
+
+		// from global var at top of this file
 		var user = twitterUserName;
-	
+		
 		// paremeters for GET search/tweets
 		var queryParams = {
 			q: "from:" + user,
 			count: 20
 		};
-	
+		
 		var client = new Twitter(keys.twitter);
 		/* 	
 		// get the tweets
