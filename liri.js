@@ -59,19 +59,17 @@ var omdb = {
 		
 		// build output string for command line
 		var s = 
-		"\n---------------------------------------------------------" +
-		"\nTitle: " + movie.Title +
-		"\nReleased: " + movie.Released +
-		"\nIMDb Rating: " + movie.imdbRating +
-		"\nRotten Tomatoes: " + rottenTomatoes+
-		"\nCountry: " + movie.Country +
-		"\nLanguage: " + movie.Language +
-		"\nActors: " + movie.Actors +
-		"\nPlot:\n" + movie.Plot +
-		"\n---------------------------------------------------------";
+			"\nTitle: " + movie.Title +
+			"\nReleased: " + movie.Released +
+			"\nIMDb Rating: " + movie.imdbRating +
+			"\nRotten Tomatoes: " + rottenTomatoes+
+			"\nCountry: " + movie.Country +
+			"\nLanguage: " + movie.Language +
+			"\nActors: " + movie.Actors +
+			"\nPlot:\n" + movie.Plot;
 		
 		// display output on cmd line
-		console.log(s);
+		console.log("\n" + addBorders(s));
 	},
 	
 	// Request movie data from omdb api and call this.render
