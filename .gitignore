@@ -3,6 +3,7 @@ keys.js
 keys.json
 output/
 tweets.json
+log.txt
 
 # Logs
 logs
