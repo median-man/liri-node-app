@@ -1,9 +1,7 @@
 // configuration variables
 var twitterUserName = "jpdTests"
 
-// contains api keys
-var keys = require( "./keys.json");
-
+var keys = require( "./keys.json"); // api keys
 var fs = require('fs');
 
 /*
@@ -123,11 +121,11 @@ var spot = {
 
 		// format and display song data on cmd line
 		var s =
-			"Artist(s): " + artists + "\n" +
-			"Song: " + song.name + "\n" +
-			"Preview song: " + song.preview_url + "\n" +
-			"Album: " + song.album.name;
-		console.log(s);
+			"\nArtist(s): " + artists +
+			"\nSong: " + song.name +
+			"\nPreview song: " + song.preview_url +
+			"\nAlbum: " + song.album.name;
+		console.log(addBorders(s));
 	},
 	// Request song data from spotify api and call this.render
 	request: function(songName) {
@@ -335,6 +333,12 @@ main( process.argv.slice(2) );
 	Helper Functions
 	----------------
 */
+// Adds a simple border above and below string
+function addBorders(s) {
+	var border = "\n" + "-".repeat(50);
+	return border + s + border;
+}
+// Wraps text without splitting words.
 function wordWrap (s, lineLength) {
 	var words = s.split(" ");
 	var lines = [""];
