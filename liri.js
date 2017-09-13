@@ -106,18 +106,24 @@ Spotify features
 -------------------------------------------------------------------------------
 */
 var spot = {
-/* 	// Returns url for search endpoint
-	getSearchUrl: function(trackName) {
-		var url = "https://api.spotify.com/v1/search?";
-		var q = "q=" + encodeURIComponent(trackName);
-		var type = "type=track";
-		return url + [q,type].join("&");
-	}, */
-
 	// Displays song info on the command line
 	render: function(song) {
-		// TODO: format and display song data on cmd line
-		console.log("song:", song);
+		// console.log(song);
+
+		// get the artist list
+		var artists = "";
+		for ( var i = 0; i < song.artists.length; i++ ) {
+			artists += ", " + song.artists[i].name;
+		}
+		artists = artists.substring(2);
+
+		// format and display song data on cmd line
+		var s =
+			"Artist(s): " + artists + "\n" +
+			"Song: " + song.name + "\n" +
+			"Preview song: " + song.preview_url + "\n" +
+			"Album: " + song.album.name;
+		console.log(s);
 	},
 	// Request song data from spotify api and call this.render
 	request: function(songName) {
@@ -126,10 +132,7 @@ var spot = {
 		var Spotify = require('node-spotify-api');
 		var spotify = new Spotify(keys.spotify);
 
-		// query parameter string
-		// var query = 
-
-		// TODO: request song data from spotify api
+		// request song data from spotify api
 		spotify.search(
 			{
 				type: 'track',
@@ -142,7 +145,9 @@ var spot = {
 				if ( err ) {
 					return console.log('Spotify Error:', err);
 				}
-				toNewFile("spotifyOut.json", JSON.stringify(data.tracks.items[0]));
+
+				// render the song
+				spot.render(data.tracks.items[0]);
 			}
 		);
 	}
@@ -264,17 +269,15 @@ function main(args) {
 		case "spotify-this-song":
 		if ( args[1] ) {
 			if ( args[1] === "test" ) {
-				// TODO: create a test object returned by 
-				// spotify api request
-				// spot.render(testSong);
+				// TODO: remove test before deployment
 				var testSong = require("./testSong.json");
 				spot.render(testSong);
 				return;
 			}
 			spot.request(args.slice(1).join(" "));
 		} else {
-			// no song title was entered
-			console.log("Please enter a song title.");
+			// no song title was entered, display default song
+			spot.request("The Sign");
 		}
 		break;
 		
@@ -297,6 +300,7 @@ function main(args) {
 		
 		/* ----- misc commands ----- */
 		case "do-what-it-says":
+			// TODO: run command in random.txt
 			break;
 
 		default:
