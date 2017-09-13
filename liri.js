@@ -4,6 +4,8 @@ var twitterUserName = "jpdTests"
 // contains api keys
 var keys = require( "./keys.json");
 
+var fs = require('fs');
+
 /*
 -------------------------------------------------------------------------------
 OMDB features
@@ -59,14 +61,16 @@ var omdb = {
 		
 		// build output string for command line
 		var s = 
-		"Title: " + movie.Title + "\n" +
-		"Released: " + movie.Released + "\n" +
-		"IMDb Rating: " + movie.imdbRating + "\n" +
-		"Rotten Tomatoes: " + rottenTomatoes+ "\n" +
-		"Country: " + movie.Country + "\n" +
-		"Language: " + movie.Language + "\n" +
-		"Actors: " + movie.Actors + "\n" +
-		"Plot:\n" + movie.Plot;
+		"\n---------------------------------------------------------" +
+		"\nTitle: " + movie.Title +
+		"\nReleased: " + movie.Released +
+		"\nIMDb Rating: " + movie.imdbRating +
+		"\nRotten Tomatoes: " + rottenTomatoes+
+		"\nCountry: " + movie.Country +
+		"\nLanguage: " + movie.Language +
+		"\nActors: " + movie.Actors +
+		"\nPlot:\n" + movie.Plot +
+		"\n---------------------------------------------------------";
 		
 		// display output on cmd line
 		console.log(s);
@@ -300,7 +304,20 @@ function main(args) {
 		
 		/* ----- misc commands ----- */
 		case "do-what-it-says":
-			// TODO: run command in random.txt
+			// get contents from random.txt
+			fs.readFile(
+				"random.txt", 
+				"utf8", 
+				function(err, data) {
+					// handle error
+					if ( err ) {
+						return console.log("I'm having a case of \
+							the Mondays. Please ask me to do \
+							something else.");
+					}
+					// execute the command in the file
+					main(data.split(","));
+				});			
 			break;
 
 		default:
