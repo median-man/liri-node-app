@@ -26,10 +26,12 @@ var Log = (function() {
 	return {
 		// Appends an entry to the log file
 		append: function(entry) {
+			var entryTime = moment().format();
+			console.log(entryTime);
 
 			// apply formatting to the string to append to the log
-			var entry = "\n" + "=".repeat(50) + "\n" + 
-				command + ":\n" + entry;
+			var entry = "\n\n" + "=".repeat(50) + "\n\n" + 
+				entryTime + "\n" + command + ":\n" + entry;
 
 			// add entry to log
 			appendToLog(entry);
