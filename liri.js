@@ -4,6 +4,38 @@ var twitterUserName = "jpdTests"
 var keys = require( "./keys.json"); // api keys
 var fs = require('fs');
 
+// moment twitter extends moment for displaying times in twitter format
+var moment = require("moment-twitter");
+/*
+-------------------------------------------------------------------------------
+Log file
+
+Provides an interface for log file operations
+-------------------------------------------------------------------------------
+*/
+var Log = (function() {
+	// get the arguments passed to Liri.js
+	var command = process.argv.slice(2).join(" ");
+
+	var logFile = "log.txt";
+
+	var appendToLog = function(data) {
+		// do nothing if error occurs while appending to the log file
+		fs.appendFile(logFile, data, function() {});
+	}
+	return {
+		// Appends an entry to the log file
+		append: function(entry) {
+
+			// apply formatting to the string to append to the log
+			var entry = "\n" + "=".repeat(50) + "\n" + 
+				command + ":\n" + entry;
+
+			// add entry to log
+			appendToLog(entry);
+		}
+	};
+})();
 /*
 -------------------------------------------------------------------------------
 OMDB features
@@ -123,6 +155,11 @@ var spot = {
 			"\nSong: " + song.name +
 			"\nPreview song: " + song.preview_url +
 			"\nAlbum: " + song.album.name;
+
+		// add to log file
+		Log.append(s);
+
+		// display on command line with borders
 		console.log(addBorders(s));
 	},
 	// Request song data from spotify api and call this.render
@@ -161,9 +198,6 @@ var twitterThing = {
 	
 	// Returns a formatted string for a single tweet
 	getTweetString: function(text, time) {
-		
-		// used to display times in twitter format
-		var moment = require("moment-twitter");
 		
 		var textLength = 47;
 		var bubbleLines = [
