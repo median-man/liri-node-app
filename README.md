@@ -13,7 +13,7 @@ This application has been made to satisfy the specifications for homework assign
 4. Run "npm install".
 5. Run "node liri.js".
 
-![Command: "node liri.js"](https://github.com/median-man/liri-node-app/images/yaktocat.png)
+![Command: node liri.js](images/cmdLine1.jpg)
 
 ## Author
 John Desrosiers
