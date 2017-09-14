@@ -27,7 +27,6 @@ var Log = (function() {
 		// Appends an entry to the log file
 		append: function(entry) {
 			var entryTime = moment().format();
-			console.log(entryTime);
 
 			// apply formatting to the string to append to the log
 			var entry = "\n\n" + "=".repeat(50) + "\n\n" + 
@@ -49,13 +48,23 @@ var omdb = {
 	
 	// Displays move data on command line
 	render: function(movie) {
+
+		// handle undefined data
+		movie.Released = !movie.Released ? "unavailable" : movie.Released;
+		movie.imdbRating = !movie.imdbRating ? "unavailable" : movie.imdbRating;
+		movie.Country = !movie.Country ? "unavailable" : movie.Country;
+		movie.Language = !movie.Language ? "unavailable" : movie.Language;
+		movie.Actors = !movie.Actors ? "unavailable" : movie.Actors;
+		movie.Plot = !movie.Plot ? "unavailable" : movie.Plot;
 		
 		// get rotten tomatoes rating if it is available
 		var rottenTomatoes = "unavailable";
-		for ( var i = 0; i < movie.Ratings.length; i++ ) {
-			var rating = movie.Ratings[i];
-			if ( rating.Source === "Rotten Tomatoes" ) {
-				rottenTomatoes = rating.Value;
+		if ( movie.Ratings ) {
+			for ( var i = 0; i < movie.Ratings.length; i++ ) {
+				var rating = movie.Ratings[i];
+				if ( rating.Source === "Rotten Tomatoes" ) {
+					rottenTomatoes = rating.Value;
+				}
 			}
 		}
 		
@@ -89,18 +98,35 @@ var omdb = {
 		
 		var queryUrl = this.host + apiKey + "&" + movieTitle;
 		
-		console.log(queryUrl);
-		
 		// request movie data from OMDB api
 		request(queryUrl, function(error, response, body) {
 			if ( !error && response.statusCode === 200 ) {
-				
-				// display the data
-				omdb.render(JSON.parse(body));
+				// handle no match found by omdb api
+				if ( ! body.Title) {
+					// display message
+					console.log(
+						"\nI couldn't find a matching movie title. Try something else.");
+					
+					// update log file
+					Log.append("OMDB Api returned 0 matches.");
+
+				} else {
+					// display the data
+					omdb.render(JSON.parse(body));
+				}
 			} else if (error) {
-				console.log("omdb request error", error);
+				// display error message
+				console.log("\nI wasn't able to process your request. I'm sorry. Goodbye.");
+
+				// update log file
+				Log.append("OMDB Error:\n" + JSON.stringify(error,null,2));
 			} else {
-				console.log("unexpected omdb api response:", response.statusCode);
+				// display message
+				console.log("\nMy magic movie finder didn't turn anything up. " +
+					"Try searching for something else.");
+
+				// update log file
+				Log.append("Unexpected api response status:\n", response.statusCode);
 			}			
 		});
 	}
