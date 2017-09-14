@@ -4,6 +4,7 @@ keys.json
 output/
 tweets.json
 log.txt
+.vscode/
 
 # Logs
 logs
