@@ -102,6 +102,9 @@ var omdb = {
 			"\nActors: " + movie.Actors +
 			"\nPlot:\n" + movie.Plot;
 		
+		// update log file
+		Log.append(s);
+		
 		// display output on cmd line
 		console.log("\n" + addBorders(s));
 	},
@@ -234,11 +237,25 @@ var twitterThing = {
 	
 	// Displays tweets on the command line
 	renderTweets: function(tweets) {
-		var out = [];		
+		var out = [];
+		var logArr = [];
+
 		for ( var i =0; i < tweets.length; i++ ) {
 			var tweet = tweets[i];
+
+			// get string for log file
+			logArr.push(
+				"Time: " + tweet.created_at + "\n" +
+				wordWrap(tweet.text, 50)
+			);
+
+			// get formatted string
 			out.push(twitterThing.getTweetString(tweet.text, tweet.created_at));
 		}
+		// update log file
+		Log.append("\n" + logArr.join("\n\n"));
+
+		// display tweet on command line
 		console.log("\n" + out.join("\n\n"));
 	},
 	
