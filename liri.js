@@ -76,10 +76,10 @@ var omdb = {
 			"\nReleased: " + movie.Released +
 			"\nIMDb Rating: " + movie.imdbRating +
 			"\nRotten Tomatoes: " + rottenTomatoes+
-			"\nCountry: " + movie.Country +
+			"\nCountry: " + wordWrap(movie.Country, 50).join("\n") +
 			"\nLanguage: " + movie.Language +
-			"\nActors: " + movie.Actors +
-			"\nPlot:\n" + movie.Plot;
+			"\nActors: " + wordWrap(movie.Actors, 50).join("\n") +
+			"\nPlot:\n" + wordWrap(movie.Plot, 50).join("\n");
 		if ( omdb.movieTitle === defaultMovie ) {
 			// build url for movie on imdb website
 			var imdbUrl = "url unavailible";
@@ -88,8 +88,10 @@ var omdb = {
 				imdbUrl =  "http://www.imdb.com/title/" + movie.imdbID;
 			}
 			// append default movie message to output string
-			s += "\n\nIf you haven't watched\"" + movie.Title + 
-				",\" then you should: " + imdbUrl + ". It's probably on Netflix.";
+			s += wordWrap(
+				"\n\nIf you haven't watched\"" + movie.Title + 
+					",\" then you should: " + imdbUrl + ". It's probably on Netflix.", 
+				50).join("\n");
 		}
 		
 		// update log file
