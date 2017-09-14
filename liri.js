@@ -1,25 +1,49 @@
-// configuration variables
-var twitterUserName = "jpdTests";
-var defaultMovie = "Mr. Nobody";
+/* 
+	LIRI for Node
 
+	Run "npm install" before running liri.js.
+
+	Table of Contents
+	1 - Configuration	- configure twitter account info and default behavior
+	2 - Log file		- log file operations
+	3 - OMDB 			- omdb api operations
+	4 - Spotify			- spotify api operations
+	5 - Twitter			- twitter api operations
+	6 - Helpers			- helper functions
+	7 - Main			- define and run main application
+*/
+// globaly required modules
 var keys = require( "./keys.json"); // api keys
 var fs = require('fs');
+var moment = require("moment-twitter"); // for time formatting
 
-// moment twitter extends moment for displaying times in twitter format
-var moment = require("moment-twitter");
 /*
 -------------------------------------------------------------------------------
-Log file
+1 - Configuration
 
-Provides an interface for log file operations
+Global variables for configuring account info and default behavior.
 -------------------------------------------------------------------------------
 */
+var twitterUserName = "jpdTests";
+var defaultMovie = "Mr. Nobody";
+var defaultSong = "The Sign";
+
+// relative path and file name for log file
+var logFile = "log.txt";  
+
+/*
+-------------------------------------------------------------------------------
+2 - Log file
+
+Methods and properties for logging to text file.
+-------------------------------------------------------------------------------
+*/
+// Log provides a single method: 'append' used to add data to the logFile.
 var Log = (function() {
 	// get the arguments passed to Liri.js
 	var command = process.argv.slice(2).join(" ");
 
-	var logFile = "log.txt";
-
+	// Appends data as a string to logFile
 	var appendToLog = function(data) {
 		// do nothing if error occurs while appending to the log file
 		fs.appendFile(logFile, data, function() {});
@@ -27,12 +51,10 @@ var Log = (function() {
 	return {
 		// Appends an entry to the log file
 		append: function(entry) {
-			var entryTime = moment().format();
-
+			var entryTime = moment().format(); // time stamp string			
 			// apply formatting to the string to append to the log
 			var entry = "\n\n" + "=".repeat(50) + "\n\n" + 
 				entryTime + "\n" + command + ":\n" + entry;
-
 			// add entry to log
 			appendToLog(entry);
 		}
@@ -40,7 +62,10 @@ var Log = (function() {
 })();
 /*
 -------------------------------------------------------------------------------
-OMDB features
+3 - OMDB
+
+Methods and properties for handling requests and rendering output for the
+omdb api.
 -------------------------------------------------------------------------------
 */
 var omdb = {
@@ -150,20 +175,21 @@ var omdb = {
 };
 /*
 -------------------------------------------------------------------------------
-Spotify features
+4 - Spotify
+
+Container for handling requests and rendering output for the Spotify API.
 -------------------------------------------------------------------------------
 */
 var spot = {
 	// Displays song info on the command line
 	render: function(song) {
-
-		// handle undefined song properties
+		// undefined song properties should display as "unavailable"
 		song.artists = !song.artists ? "unavailable" : song.artists;
 		song.name = !song.name ? "unavailable" : song.name;
 		song.preview_url = !song.preview_url ? "unavailable" : song.preview_url;
 		song.album.name = !song.album.name ? "unavailable" : song.album.name;
 		
-		// get the artist list
+		// get list of artists as a string
 		var artists = "";
 		for ( var i = 0; i < song.artists.length; i++ ) {
 			artists += ", " + song.artists[i].name;
@@ -179,13 +205,12 @@ var spot = {
 
 		// add to log file
 		Log.append(s);
-
 		// display on command line with borders
 		console.log(addBorders(s));
 	},
+
 	// Request song data from spotify api and call this.render
 	request: function(songName) {
-
 		try {
 			// get spotify api client
 			var Spotify = require('node-spotify-api');
@@ -205,22 +230,20 @@ var spot = {
 						// update log file
 						Log.append(
 							"Spotify API Error:\n" + wordWrap(err.toString(), 50).join("\n"));
-
 						// display message to user
 						return console.log(
 							"\nHmmm. I didn't have any luck searching for '" + songName + "'.");
 					}
-
 					// render the song
 					spot.render(data.tracks.items[0]);
 				}
 			);
+
+		// handle error connecting to Spotify API
 		} catch (e) {
-			// error occurred connecting to spotify
 			// update log
 			Log.append("Error connecting to Spotify:\n" + 
-				wordWrap(e.toString(), 50).join("\n"));
-			
+				wordWrap(e.toString(), 50).join("\n"));			
 			// display error message
 			return console.log("I'm afraid that Spotify and I are not on speaking terms.");
 		}
@@ -228,76 +251,75 @@ var spot = {
 };
 /*
 -------------------------------------------------------------------------------
-Twitter features
+5 - Twitter
+
+Container for handling requests and rendering output for the Twitter API.
 -------------------------------------------------------------------------------
 */
-var twitterThing = {
-	
-	// Returns a formatted string for a single tweet
-	getTweetString: function(text, time) {
-		
+var twitterThing = {	
+	// Returns a formatted string for a single tweet rendering with the
+	// likeness of a dialog bubble
+	getTweetString: function(text, time) {		
 		var textLength = 47;
 		var bubbleLines = [
-			"     + + + + + + + + + + + + + + + + + + + + + + + + + +              ",
-			"   +                                                     +            "
+			"     + + + + + + + + + + + + + + + + + + + + + + + + + +  ",
+			"   +                                                     +"
 		];
 		var bottomLines = [
-			"   +                                                     +            ",
-			"     + +     + + + + + + + + + + + + + + + + + + + + + +              ",
-			"       +   +                                                          ",
-			"     +  +                                                             "
+			"   +                                                     +",
+			"     + +     + + + + + + + + + + + + + + + + + + + + + +  ",
+			"       +   +                                              ",
+			"     +  +                                                 "
 		];
 		var placeHolder = "%s";
 		var textFormat = "  +    %s    +           ";
+		// get the width for the entire dialog bubble "image"
 		var lineWidth = bubbleLines[0].length;
+		// add a time stamp formatted as with twitter mobile app (i.e. "4h", "2d", etc.)
+		text += " (" + moment(time).twitter() + ")";		
+		var wrappedText = wordWrap(text, textLength); // returns array
 		
-		text += " (" + moment(time).twitter() + ")";
-		
-		var wrappedText = wordWrap(text, textLength);
-		
+		// add lines to array for each line of tweet text formatted for the bubble
 		for ( var i = 0; i < wrappedText.length; i++ ) {
 			// add space to make line length = textLength
 			if ( wrappedText[i].length < textLength ) {
 				wrappedText[i] += " ".repeat(textLength - wrappedText[i].length);
 			}
-			// place text in formatted line and add to lines.
+			// place text in formatted line and add to lines array.
 			bubbleLines.push(textFormat.replace(placeHolder, wrappedText[i]));
 		}
 		bubbleLines = bubbleLines.concat(bottomLines);
+		// return as a string
 		return bubbleLines.join("\n");
 	},
 	
 	// Displays tweets on the command line
-	renderTweets: function(tweets) {
-		var out = [];
-		var logArr = [];
+	renderTweets: function(tweets) {		
+		var out = []; // array of strings to render
+		var logArr = []; // array of strings for log file
 
+		// populate out and logArr with tweets
 		for ( var i =0; i < tweets.length; i++ ) {
 			var tweet = tweets[i];
-
 			// get string for log file
 			logArr.push(
 				"Time: " + tweet.created_at + "\n" +
 				wordWrap(tweet.text, 50)
 			);
-
-			// get formatted string
+			// get formatted string for output
 			out.push(twitterThing.getTweetString(tweet.text, tweet.created_at));
 		}
 		// update log file
 		Log.append("\n" + logArr.join("\n\n"));
-
 		// display tweet on command line
 		console.log("\n" + out.join("\n\n"));
 	},
 	
-	// Requests most recent tweets up to 20
+	// Requests most recent tweets up to 20 and call this.renderTweets
 	reqeuest: function() {
-		var tweets;
-		
-		// from global var at top of this file
-		var user = twitterUserName;
-		
+		var tweets;		
+		var user = twitterUserName; // from global var at top of this file
+
 		// paremeters for GET search/tweets
 		var queryParams = {
 			q: "from:" + user,
@@ -309,16 +331,15 @@ var twitterThing = {
 		var client = new Twitter(keys.twitter);
 			
 		// get the tweets
-		client.get('search/tweets', queryParams, function(err, tweets, response) {
-			
+		client.get('search/tweets', queryParams, function(err, tweets, response) {			
 			// handle error
 			if ( err ) {
 				// update log file
 				Log.append("Twitter API Error:\n" + JSON.stringify(err, null, 2));
-
-				// display message
+				// display message and stop application
 				return console.log("I wasn't able to retrieve your tweets. I might be ill.");
 			}
+
 			// render the tweets
 			twitterThing.renderTweets(tweets.statuses);
 		});	
@@ -326,19 +347,20 @@ var twitterThing = {
 };
 /*
 -------------------------------------------------------------------------------
-Helper Functions
+6 - Helpers
+
+Utility functions
 -------------------------------------------------------------------------------
 */
-// Adds a simple border above and below string
+// Adds a simple border above and below string 50 characters in width
 function addBorders(s) {
 	var border = "\n" + "-".repeat(50);
 	return border + s + border;
 }
-// Wraps text without splitting words.
+// Wraps text without splitting words at a specified length in characters.
 function wordWrap (s, lineLength) {
 	var words = s.split(" ");
 	var lines = [""];
-
 	for ( var i = 0; i < words.length; i++ ) {
 		var remainingChars = lineLength - lines[lines.length - 1].length;
 		if ( words[i].length + 1 > lineLength ) {
@@ -368,14 +390,15 @@ function wordWrap (s, lineLength) {
 }
 /*
 -------------------------------------------------------------------------------
-Main function
+7 - Main
 
-runs the application
+Run the application
 -------------------------------------------------------------------------------
 */
 function main(args) {
 	var command = args[0];
 
+	// run the specified command
 	switch ( command ) {
 
 		/* ----- twitter commands ----- */
@@ -390,20 +413,18 @@ function main(args) {
 				spot.request(args.slice(1).join(" "));
 			} else {
 				// no song title was entered, display default song
-				spot.request("The Sign");
+				spot.request(defaultSong);
 			}
 			break;
 		
 		/* ----- movie commands ----- */
 		case "movie-this":
 		// check for movie title
-		if ( args[1] ) {
-			
+		if ( args[1] ) {			
 			// join args for multi word title and run command
 			omdb.request(args.slice(1).join(" "));
 		} else {
-
-			// display default movie
+			// display default movie when no movie title specified
 			omdb.request(defaultMovie);
 		}
 		break;
@@ -432,7 +453,8 @@ function main(args) {
 					main(data.split(","));
 				});			
 			break;
-
+		
+		// no command or invalid command was passed
 		default:
 			console.log(
 				"I'm sorry. I didn't understand that request. Please\n" +
