@@ -1,12 +1,16 @@
+# keys.json
+
 # testing
-keys.js
-keys.json
-output/
+
 tweets.json
-log.txt
+testMovie.json
+testSong.json
+
+# vscode files
 .vscode/
 
 # Logs
+log.txt
 logs
 *.log
 npm-debug.log*

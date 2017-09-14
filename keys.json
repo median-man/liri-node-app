@@ -1,0 +1,15 @@
+{
+	"twitter": 
+	{
+		"consumer_key": "hyWFrvh1MSJlAn7vJnhuEznmO",
+		"consumer_secret": "cutTxwWs1LNlMPMWGFUTPIgR00iMfdCXbbXiWIJo5tIJSXuhlY",
+		"access_token_key": "906628602996736000-OofcrXhz764zQTHHfiVi0eQjgXTILLf",
+		"access_token_secret": "rbjx4gJpvyQ9K6V8Cwg40jCW2qvTf7B1jRrVKZYZ8N4LN"
+	},
+	"omdb": "40e9cece",
+	"spotify": 
+	{
+		"id": "6a31972102504ace8dbd12809936d75c",
+		"secret": "66f0d4acbaa641f28d71da9ec814d4b1"
+	}
+}
