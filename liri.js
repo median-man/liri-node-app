@@ -43,38 +43,6 @@ var Log = (function() {
 OMDB features
 -------------------------------------------------------------------------------
 */
-var testMovie = 
-{ 
-	Title: 'Spaceballs',
-	Year: '1987',
-	Rated: 'PG',
-	Released: '24 Jun 1987',
-	Runtime: '96 min',
-	Genre: 'Adventure, Comedy, Sci-Fi',
-	Director: 'Mel Brooks',
-	Writer: 'Mel Brooks, Thomas Meehan, Ronny Graham',
-	Actors: 'Mel Brooks, John Candy, Rick Moranis, Bill Pullman',
-	Plot: 'Planet Spaceballs\' President Skroob sends Lord Dark Helmet to steal planet Druidia\'s abundant supply of air to replenish their own, and only Lone Star	r can stop them.',
-	Language: 'English',
-	Country: 'USA',
-	Awards: '1 win.',
-	Poster: 'https://images-na.ssl-images-amazon.com/images/M/MV5BMjVjOGQ0OTctNDhkZC00ZGNiLWI2ZGEtYjZlMWZjOTlkNDlhXkEyXkFqcGdeQXVyNjg1MjEwOTM@._V1_SX300.jpg',
-	Ratings:
-	[ { Source: 'Internet Movie Database', Value: '7.1/10' },
-	{ Source: 'Rotten Tomatoes', Value: '57%' },
-	{ Source: 'Metacritic', Value: '46/100' } ],
-	Metascore: '46',
-	imdbRating: '7.1',
-	imdbVotes: '145,740',
-	imdbID: 'tt0094012',
-	Type: 'movie',
-	DVD: '02 May 2000',
-	BoxOffice: 'N/A',
-	Production: 'MGM',
-	Website: 'N/A',
-	Response: 'True'
-};
-
 var omdb = {
 	host: "http://www.omdbapi.com/?",
 	apiKey: keys.omdb,
@@ -290,49 +258,75 @@ var twitterThing = {
 	}
 };
 
-function toNewFile(fname, data) {
-	var fs = require("fs");
-	var path = "output\\"
-
-	fs.writeFile(path + fname, data, function(err) {
-		console.error(err);
-	} );
+/*
+-------------------------------------------------------------------------------
+Helper Functions
+-------------------------------------------------------------------------------
+*/
+// Adds a simple border above and below string
+function addBorders(s) {
+	var border = "\n" + "-".repeat(50);
+	return border + s + border;
 }
+// Wraps text without splitting words.
+function wordWrap (s, lineLength) {
+	var words = s.split(" ");
+	var lines = [""];
 
+	for ( var i = 0; i < words.length; i++ ) {
+		var remainingChars = lineLength - lines[lines.length - 1].length;
+		if ( words[i].length + 1 > lineLength ) {
+			// break word into two parts
+			words = words.slice(0, i)
+				.concat(
+					[
+						words[i].substr(0, remainingChars - 1),
+						words[i].substring(remainingChars - 1)
+					],
+					words.slice(i+1)
+				); 
+		}
+		// determines if the next word with a space is too long
+		if (  words[i].length + 1 > remainingChars ) {
+			// start the next line
+			lines.push("");
+		}
+		if ( lines[lines.length - 1].length > 0 ) {
+			// add a space before the word
+			words[i] = " " + words[i];
+		}
+		// add the word to the current line
+		lines[lines.length - 1] += words[i];
+	}
+	return lines;
+}
+/*
+-------------------------------------------------------------------------------
+Main function
+
+runs the application
+-------------------------------------------------------------------------------
+*/
 function main(args) {
 	var command = args[0];
 
 	switch ( command ) {
 
 		/* ----- twitter commands ----- */
-		case "my-tweets":
-		
-		// TODO: remove test code before deploying
-		if ( args[1] === "test" ) {
-			var testTweets = require("./tweets.json");
-			twitterThing.renderTweets(testTweets);
-			return;
-		}
-		
-		twitterThing.reqeuest();
-		break;
+		case "my-tweets":		
+			twitterThing.reqeuest();
+			break;
 		
 		/* ----- music commands ----- */
 		case "spotify":
 		case "spotify-this-song":
-		if ( args[1] ) {
-			if ( args[1] === "test" ) {
-				// TODO: remove test before deployment
-				var testSong = require("./testSong.json");
-				spot.render(testSong);
-				return;
+			if ( args[1] ) {
+				spot.request(args.slice(1).join(" "));
+			} else {
+				// no song title was entered, display default song
+				spot.request("The Sign");
 			}
-			spot.request(args.slice(1).join(" "));
-		} else {
-			// no song title was entered, display default song
-			spot.request("The Sign");
-		}
-		break;
+			break;
 		
 		/* ----- movie commands ----- */
 		case "movie-this":
