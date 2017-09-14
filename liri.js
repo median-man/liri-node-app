@@ -1,5 +1,6 @@
 // configuration variables
-var twitterUserName = "jpdTests"
+var twitterUserName = "jpdTests";
+var defaultMovie = "Mr. Nobody";
 
 var keys = require( "./keys.json"); // api keys
 var fs = require('fs');
@@ -45,6 +46,7 @@ OMDB features
 var omdb = {
 	host: "http://www.omdbapi.com/?",
 	apiKey: keys.omdb,
+	movieTitle: "",
 	
 	// Displays move data on command line
 	render: function(movie) {
@@ -78,48 +80,57 @@ var omdb = {
 			"\nLanguage: " + movie.Language +
 			"\nActors: " + movie.Actors +
 			"\nPlot:\n" + movie.Plot;
+		if ( omdb.movieTitle === defaultMovie ) {
+			// build url for movie on imdb website
+			var imdbUrl = "url unavailible";
+			if ( !!movie.imdbID ) {
+				// imdbID exists, set the url
+				imdbUrl =  "http://www.imdb.com/title/" + movie.imdbID;
+			}
+			// append default movie message to output string
+			s += "\n\nIf you haven't watched\"" + movie.Title + 
+				",\" then you should: " + imdbUrl + ". It's probably on Netflix.";
+		}
 		
 		// update log file
-		Log.append(s);
-		
+		Log.append(s);		
 		// display output on cmd line
 		console.log("\n" + addBorders(s));
 	},
 	
-	// Request movie data from omdb api and call this.render
+	// Request movie data from omdb api and call this.render, returns a promise
 	request: function(movieTitle) {
-
+		this.movieTitle = movieTitle;
 		// get http request client
 		var request = require("request");
-		
-		// GET parameters
+
+		// setup paremeters for request
 		var apiKey = "apikey=" + omdb.apiKey;
-		movieTitle = "t=" + encodeURIComponent(movieTitle);
-		
+		movieTitle = "t=" + encodeURIComponent(movieTitle);		
 		var queryUrl = this.host + apiKey + "&" + movieTitle;
 		
 		// request movie data from OMDB api
 		request(queryUrl, function(error, response, body) {
 			if ( !error && response.statusCode === 200 ) {
 				body = JSON.parse(body);
+
 				// handle no match found by omdb api
 				if ( !body.Title ) {
 					// display message
 					console.log(
-						"\nI couldn't find a matching movie title. Try something else.");
-					
+						"\nI couldn't find a matching movie title. Try something else.");					
 					// update log file
 					Log.append("OMDB Api returned 0 matches.");
 
+				// omdb request succesful, display the data
 				} else {
-					// display the data
 					omdb.render(body);
 				}
+
 			// handle error responses
 			} else if (error) {
 				// display error message
 				console.log("\nI wasn't able to process your request. I'm sorry. Goodbye.");
-
 				// update log file
 				Log.append("OMDB Error:\n" + JSON.stringify(error,null,2));
 
@@ -128,11 +139,11 @@ var omdb = {
 				// display message
 				console.log("\nMy magic movie finder didn't turn anything up. " +
 					"Try searching for something else.");
-
 				// update log file
 				Log.append("Unexpected api response status:\n" + response.statusCode + " " + response.statusMessage);
-			}			
+			}
 		});
+
 	}
 };
 /*
@@ -391,7 +402,7 @@ function main(args) {
 		} else {
 
 			// display default movie
-			omdb.request("Mr. Nobody");
+			omdb.request(defaultMovie);
 		}
 		break;
 		
