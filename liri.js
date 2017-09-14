@@ -101,6 +101,7 @@ var omdb = {
 		// request movie data from OMDB api
 		request(queryUrl, function(error, response, body) {
 			if ( !error && response.statusCode === 200 ) {
+				body = JSON.parse(body);
 				// handle no match found by omdb api
 				if ( !body.Title ) {
 					// display message
@@ -112,7 +113,7 @@ var omdb = {
 
 				} else {
 					// display the data
-					omdb.render(JSON.parse(body));
+					omdb.render(body);
 				}
 			// handle error responses
 			} else if (error) {
@@ -388,7 +389,9 @@ function main(args) {
 			// join args for multi word title and run command
 			omdb.request(args.slice(1).join(" "));
 		} else {
-			console.log("Enter a movie title.");
+
+			// display default movie
+			omdb.request("Mr. Nobody");
 		}
 		break;
 		
