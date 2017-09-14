@@ -125,7 +125,7 @@ var omdb = {
 			}
 			// append default movie message to output string
 			s += wordWrap(
-				"\n\nIf you haven't watched\"" + movie.Title + 
+				"\n\nIf you haven't watched \"" + movie.Title + 
 					",\" then you should: " + imdbUrl + ". It's probably on Netflix.", 
 				50).join("\n");
 		}
