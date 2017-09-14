@@ -11,7 +11,9 @@ This application has been made to satisfy the specifications for homework assign
 2. Download the repository. (https://github.com/median-man/liri-node-app)
 3. Navigate to the directory in which you downloaded the repository in your terminal.
 4. Run "npm install".
-5. Run "node liri.js".
+5. Run "node liri.js <command>".
+
+Available commands: my-tweets, spotify-this-song, movie-this, do-what-it-says.
 
 ![Command: node liri.js](images/cmdLine1.jpg)
 
