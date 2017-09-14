@@ -358,6 +358,13 @@ function main(args) {
 							the Mondays. Please ask me to do \
 							something else.");
 					}
+					var arrData = data.split(",");
+					// prevent an infinite loop
+					if ( arrData[0] === "do-what-it-says" ) {
+						// give the user some sass
+						return console.log(
+							"You want me to do what? Take a long walk off a short pier.");
+					}
 					// execute the command in the file
 					main(data.split(","));
 				});			
