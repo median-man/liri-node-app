@@ -102,7 +102,7 @@ var omdb = {
 		request(queryUrl, function(error, response, body) {
 			if ( !error && response.statusCode === 200 ) {
 				// handle no match found by omdb api
-				if ( ! body.Title) {
+				if ( !body.Title ) {
 					// display message
 					console.log(
 						"\nI couldn't find a matching movie title. Try something else.");
@@ -114,19 +114,22 @@ var omdb = {
 					// display the data
 					omdb.render(JSON.parse(body));
 				}
+			// handle error responses
 			} else if (error) {
 				// display error message
 				console.log("\nI wasn't able to process your request. I'm sorry. Goodbye.");
 
 				// update log file
 				Log.append("OMDB Error:\n" + JSON.stringify(error,null,2));
+
+			// handle all other responses
 			} else {
 				// display message
 				console.log("\nMy magic movie finder didn't turn anything up. " +
 					"Try searching for something else.");
 
 				// update log file
-				Log.append("Unexpected api response status:\n", response.statusCode);
+				Log.append("Unexpected api response status:\n" + response.statusCode + " " + response.statusMessage);
 			}			
 		});
 	}
@@ -308,7 +311,6 @@ var twitterThing = {
 		});	
 	}
 };
-
 /*
 -------------------------------------------------------------------------------
 Helper Functions
