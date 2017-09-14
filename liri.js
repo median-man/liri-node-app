@@ -4,6 +4,7 @@
 	Run "npm install" before running liri.js.
 
 	Table of Contents
+	---------------------------------------------------------------------------
 	1 - Configuration	- configure twitter account info and default behavior
 	2 - Log file		- log file operations
 	3 - OMDB 			- omdb api operations
