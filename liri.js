@@ -305,7 +305,6 @@ var twitterThing = {
 				// display message
 				return console.log("I wasn't able to retrieve your tweets. I might be ill.");
 			}
-			console.log(tweets);
 			// render the tweets
 			twitterThing.renderTweets(tweets.statuses);
 		});	
@@ -385,11 +384,6 @@ function main(args) {
 		case "movie-this":
 		// check for movie title
 		if ( args[1] ) {
-			// TODO: remove test code
-			if ( args[1] === "test" ) {
-				// dont send request for testing
-				return omdb.render(testMovie);
-			}
 			
 			// join args for multi word title and run command
 			omdb.request(args.slice(1).join(" "));
