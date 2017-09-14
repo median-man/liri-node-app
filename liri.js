@@ -14,9 +14,19 @@
 	7 - Main			- define and run main application
 */
 // globaly required modules
-var keys = require( "./keys.json"); // api keys
-var fs = require('fs');
-var moment = require("moment-twitter"); // for time formatting
+try {
+	var keys = require( "./keys.json"); // api keys
+	var fs = require('fs');
+	var moment = require("moment-twitter"); // for time formatting
+} catch (e) {
+	var msg = "";
+	if ( e.code === 'MODULE_NOT_FOUND') {
+		msg = e.message + "\nPlease install dependencies by running the following command: \"npm install\"";
+	} else {
+		msg = e.message;
+	}
+	return console.log(msg);
+}
 
 /*
 -------------------------------------------------------------------------------
