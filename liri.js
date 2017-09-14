@@ -139,8 +139,13 @@ Spotify features
 var spot = {
 	// Displays song info on the command line
 	render: function(song) {
-		// console.log(song);
 
+		// handle undefined song properties
+		song.artists = !song.artists ? "unavailable" : song.artists;
+		song.name = !song.name ? "unavailable" : song.name;
+		song.preview_url = !song.preview_url ? "unavailable" : song.preview_url;
+		song.album.name = !song.album.name ? "unavailable" : song.album.name;
+		
 		// get the artist list
 		var artists = "";
 		for ( var i = 0; i < song.artists.length; i++ ) {
@@ -179,7 +184,13 @@ var spot = {
 			},
 			function(err, data) {
 				if ( err ) {
-					return console.log('Spotify Error:', err);
+					// update log file
+					Log.append(
+						"Spotify API Error:\n" + JSON.stringify( err, null, 2));
+
+					// display message to user
+					return console.log(
+						"\nHmmm. I didn't have any luck searching for '" + songName + "'.");
 				}
 
 				// render the song
