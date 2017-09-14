@@ -169,34 +169,44 @@ var spot = {
 	// Request song data from spotify api and call this.render
 	request: function(songName) {
 
-		// get spotify api client
-		var Spotify = require('node-spotify-api');
-		var spotify = new Spotify(keys.spotify);
+		try {
+			// get spotify api client
+			var Spotify = require('node-spotify-api');
+			var spotify = new Spotify(keys.spotify);
 
-		// request song data from spotify api
-		spotify.search(
-			{
-				type: 'track',
-				// place song name in quotes for exact word match
-				// that is not case sensitive
-				query: '"' + songName + '"',
-				limit: 1
-			},
-			function(err, data) {
-				if ( err ) {
-					// update log file
-					Log.append(
-						"Spotify API Error:\n" + JSON.stringify( err, null, 2));
+			// request song data from spotify api
+			spotify.search(
+				{
+					type: 'track',
+					// place song name in quotes for exact word match
+					// that is not case sensitive
+					query: '"' + songName + '"',
+					limit: 1
+				},
+				function(err, data) {
+					if ( err ) {
+						// update log file
+						Log.append(
+							"Spotify API Error:\n" + wordWrap(err.toString(), 50).join("\n"));
 
-					// display message to user
-					return console.log(
-						"\nHmmm. I didn't have any luck searching for '" + songName + "'.");
+						// display message to user
+						return console.log(
+							"\nHmmm. I didn't have any luck searching for '" + songName + "'.");
+					}
+
+					// render the song
+					spot.render(data.tracks.items[0]);
 				}
-
-				// render the song
-				spot.render(data.tracks.items[0]);
-			}
-		);
+			);
+		} catch (e) {
+			// error occurred connecting to spotify
+			// update log
+			Log.append("Error connecting to Spotify:\n" + 
+				wordWrap(e.toString(), 50).join("\n"));
+			
+			// display error message
+			return console.log("I'm afraid that Spotify and I are not on speaking terms.");
+		}
 	}
 };
 /*
@@ -284,9 +294,13 @@ var twitterThing = {
 		// get the tweets
 		client.get('search/tweets', queryParams, function(err, tweets, response) {
 			
-			//log error
+			// handle error
 			if ( err ) {
-				return console.log(err);
+				// update log file
+				Log.append("Twitter API Error:\n" + JSON.stringify(err, null, 2));
+
+				// display message
+				return console.log("I wasn't able to retrieve your tweets. I might be ill.");
 			}
 			console.log(tweets);
 			// render the tweets
