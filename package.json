@@ -4,9 +4,11 @@
   "description": "LIRI is a Language Interpretation and Recognition Interface for accessing information from some popular APIs.",
   "main": "liri.js",
   "dependencies": {
-    "moment": "^2.18.1",
+    "jquery-param": "^0.2.0",
+    "moment": "^2.20.1",
     "moment-twitter": "^0.2.0",
     "node-spotify-api": "^1.0.7",
+    "request-promise-native": "^1.0.5",
     "twitter": "^1.7.1"
   },
   "devDependencies": {},
