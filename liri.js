@@ -2,6 +2,7 @@ const fs = require('fs');
 const moment = require('moment');
 const param = require('jquery-param');
 const request = require('request-promise');
+const Spotify = require('node-spotify-api')
 const keys = require('./keys.json');
 
 // globals
@@ -22,6 +23,7 @@ function printObject(obj) {
   for (let key in obj) {
     text += `\n${key}: ${obj[key]}`;
   }
+  text += '\n'.repeat(3);
   console.log(text);
 }
 
@@ -55,12 +57,55 @@ function movieThis(title) {
     .catch(console.log);
 }
 
+function spotifySong(song) {
+  const songData = {
+    albumName: '',
+    artists: '',
+    previewUrl: '',
+    songName: '',
+  };
+  const spotify = new Spotify(keys.spotify);
+  let url = 'https://api.spotify.com/v1/search?';
+  song = song ? encodeURIComponent(song) : 'the+sign+artist:ace+of+base';
+  song = `track:${song}`;
+  url += `q=${song}&limit=1&type=track`;
+  spotify
+    .request(url)
+    .then(function (response) {
+      // return false if song is not found
+      if (!response.tracks.items[0]) return false;
+
+      // return song data from spotify
+      const { album, artists, name, preview_url } = response.tracks.items[0];
+      songData.albumName = album.name;
+      songData.artists = artists.map(artist => artist.name).join(', ');
+      songData.previewUrl = preview_url;
+      songData.songName = name;
+      return songData;
+    })
+    .then(songData => {
+      printObject({
+        'Song': songData.songName,
+        'Artist(s)': songData.artists,
+        'Album': songData.albumName,
+        'Preview URL': songData.previewUrl,
+      })
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+}
+
 function main(command, arg) {
   appendToLog(command, arg);
 	switch (command) {
     case 'movie-this':
       movieThis(arg);
-		break;
+    break;
+    
+    case 'spotify-this-song':
+      spotifySong(arg);
+    break;
 	}
 }
 main(process.argv[2], process.argv[3] || null);
